@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <string>
 using namespace std;
 
 enum token_type {NONE = -1,
