@@ -1,49 +1,44 @@
 #include <iomanip>
 #include <cstdlib>
 #include "LexicalAnalyzer.h"
-#include <map>
 
 using namespace std;
 
-map<string, string> lexMap;
-static string token_names[] = {	"EOF_T" }; 
+static string token_names[] = {	"EOF_T",      // 0
+				"NUM_TOKENS", // 1
+				"CONS_T = 2", // 2
+				"IF_T",       // 3
+				"WHILE_T",    // 4
+				"AND_T",      // 5
+				"OR_T",       // 6
+				"NOT_T",      // 7
+				"DEFINE_T",   // 8
+				"LISTOP_T",   // 9
+				"NUMBERP_T",  // 10
+				"SYMBOLP_T",  // 11
+				"LISTP_T",    // 12
+				"ZEROP_T",    // 13
+				"NULLP_T",    // 14
+				"CHARP_T",    // 15
+				"STRINGP_T",  // 16
+				"PLUS_T",     // 17
+				"MINUS_T",    // 18
+				"DIV_T",      // 19
+				"MULT_T",     // 20
+				"EQUALTO_T",  // 21
+				"GT_T",       // 22
+				"LT_T",       // 23
+				"GTE_T",      // 24
+				"LTE_T",      // 25
+				"LPAREN_T",   // 26
+				"RPAREN_T",   // 27
+				"QUOTE_T",    // 28
+				"IDENT_T",    // 29
+				"NUMLIT_T"};  // 30
 
 LexicalAnalyzer::LexicalAnalyzer (char * filename)
 {
 	// This function will initialize the lexical analyzer class
-    lexMap.insert(pair<string, string>("cons", "CONS_T"));
-    lexMap.insert(pair<string, string>("if", "IF_T"));
-    lexMap.insert(pair<string, string>("while", "WHILE_T"));
-    lexMap.insert(pair<string, string>("and", "AND_T"));
-    lexMap.insert(pair<string, string>("or", "OR_T"));
-    lexMap.insert(pair<string, string>("not", "NOT_T"));
-    lexMap.insert(pair<string, string>("define", "DEFINE_T"));
-    //NEED LISTOF_T
-
-    lexMap.insert(pair<string, string>("number?", "NUMBERP_T"));
-    lexMap.insert(pair<string, string>("symbol?", "SYMBOLP_T"));
-    lexMap.insert(pair<string, string>("list?", "LISTP_T"));
-    lexMap.insert(pair<string, string>("zero?", "ZEROP_T"));
-    lexMap.insert(pair<string, string>("null?", "NULLP_T"));
-    lexMap.insert(pair<string, string>("char?", "CHARP_T"));
-    lexMap.insert(pair<string, string>("string?", "STRINGP_T"));
-
-    lexMap.insert(pair<string, string>("+", "PLUS_T"));
-    lexMap.insert(pair<string, string>("-", "MINUS_T"));
-    lexMap.insert(pair<string, string>("/", "DIV_T"));
-    lexMap.insert(pair<string, string>("*", "MULT_T"));
-
-    lexMap.insert(pair<string, string>("=", "EQUALTO_T"));
-    lexMap.insert(pair<string, string>(">", "GT_T"));
-    lexMap.insert(pair<string, string>("<", "LT_T"));
-    lexMap.insert(pair<string, string>(">=", "GTE_T"));
-    lexMap.insert(pair<string, string>("<=", "LTE_T"));
-
-    lexMap.insert(pair<string, string>("(", "LPAREN_T"));
-    lexMap.insert(pair<string, string>(")", "RPAREN_T"));
-    lexMap.insert(pair<string, string>("'", "QUOTE_T"));
-
-    lexMap.insert(pair<string, string>("", "EOF_T"));
 }
 
 LexicalAnalyzer::~LexicalAnalyzer ()
@@ -53,16 +48,17 @@ LexicalAnalyzer::~LexicalAnalyzer ()
 
 token_type LexicalAnalyzer::GetToken ()
 {
-	// This function will find the next lexeme in the input file and return
+  token_type test = EOF_T;
+	// This function will find the next lexeme int the input file and return
 	// the token_type value associated with that lexeme
-	return token;
+  return test;
 }
 
 string LexicalAnalyzer::GetTokenName (token_type t) const
 {
 	// The GetTokenName function returns a string containing the name of the
 	// token passed to it. 
-	return "";
+	return token_names[t];
 }
 
 string LexicalAnalyzer::GetLexeme () const
