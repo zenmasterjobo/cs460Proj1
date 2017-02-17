@@ -11,11 +11,12 @@ int main (int argc, char * argv[])
     printf ("format: proj1 <filename>\n");
     exit (1);
   }
-  
+  token_type test;
   LexicalAnalyzer *lex = new LexicalAnalyzer(argv[1]);
-  token_type test = lex->GetToken();
-  //cout << lex->GetTokenName(test) << endl;
-  
+  do{
+  test = lex->GetToken();
+  cout << lex->GetTokenName(test) << endl;
+  } while(test != 0);
   
 //SetLimits ();
 //SyntacticalAnalyzer parser (argv[1]);

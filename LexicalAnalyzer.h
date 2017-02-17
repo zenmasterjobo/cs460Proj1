@@ -62,7 +62,6 @@ class LexicalAnalyzer
 	string lexeme;
 	int errors;
 	token_type file_error;
-	int stateTable[13][21];
         map<string, int> charToInt;
 };
 	
