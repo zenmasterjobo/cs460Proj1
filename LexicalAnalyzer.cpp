@@ -44,6 +44,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   input.open(filename);
   file_error = FILE_ERR;
 
+
 stateTable[13][21] =
    {{0,528,526,527,520,8,11,519,9,10,3,521,4,-50,6,1,6,6,6,6,-50},
     {529,529,529,529,529,529,529,529,529,6,529,529,529,529,2,6,5,6,6,6,6},
@@ -59,6 +60,88 @@ stateTable[13][21] =
     {518,518,518,518,518,518,518,518,14,7,518,518,518,518,518,518,518,518,518,518,518},
     {530,530,530,530,530,530,530,530,530,12,530,530,530,530,530,530,530,530,530,530,530}}; 
 
+
+    charToInt[" "] = 1;
+    charToInt["'"] = 2;
+    charToInt["("] = 3;
+    charToInt[")"] = 4;
+    charToInt["*"] = 5;
+    charToInt["+"] = 6;
+    charToInt["-"] = 7;
+    charToInt["/"] = 8;
+    charToInt["."] = 9;
+    charToInt["0"] = 10;
+    charToInt["1"] = 10;
+    charToInt["2"] = 10;
+    charToInt["3"] = 10;
+    charToInt["4"] = 10;
+    charToInt["5"] = 10;
+    charToInt["6"] = 10;
+    charToInt["7"] = 10;
+    charToInt["8"] = 10;
+    charToInt["9"] = 10;
+    charToInt["<"] = 11;
+    charToInt["="] = 12;
+    charToInt[">"] = 13;
+    charToInt["?"] = 14;
+    charToInt["a"] = 15;
+    charToInt["b"] = 19;
+    charToInt["c"] = 16;
+    charToInt["d"] = 17;
+    charToInt["e"] = 19;
+    charToInt["f"] = 19;
+    charToInt["g"] = 19;
+    charToInt["h"] = 19;
+    charToInt["i"] = 19;
+    charToInt["j"] = 19;
+    charToInt["k"] = 19;
+    charToInt["m"] = 19;
+    charToInt["n"] = 19;
+    charToInt["o"] = 19;
+    charToInt["p"] = 19;
+    charToInt["q"] = 19;
+    charToInt["r"] = 18;
+    charToInt["s"] = 19;
+    charToInt["t"] = 19;
+    charToInt["u"] = 19;
+    charToInt["v"] = 19;
+    charToInt["w"] = 19;
+    charToInt["x"] = 19;
+    charToInt["y"] = 19;
+    charToInt["z"] = 19;
+    charToInt["A"] = 20;
+    charToInt["B"] = 20;
+    charToInt["C"] = 20;
+    charToInt["D"] = 20;
+    charToInt["E"] = 20;
+    charToInt["F"] = 20;
+    charToInt["G"] = 20;
+    charToInt["H"] = 20;
+    charToInt["I"] = 20;
+    charToInt["J"] = 20;
+    charToInt["K"] = 20;
+    charToInt["M"] = 20;
+    charToInt["N"] = 20;
+    charToInt["O"] = 20;
+    charToInt["P"] = 20;
+    charToInt["Q"] = 20;
+    charToInt["R"] = 20;
+    charToInt["S"] = 20;
+    charToInt["T"] = 20;
+    charToInt["U"] = 20;
+    charToInt["V"] = 20;
+    charToInt["W"] = 20;
+    charToInt["X"] = 20;
+    charToInt["Y"] = 20;
+    charToInt["Z"] = 20;
+    charToInt["_"] = 21;
+    charToInt["$"] = 22;
+    charToInt["#"] = 22;
+    charToInt["%"] = 22;
+    charToInt["^"] = 22;
+    charToInt["&"] = 22;
+    charToInt["~"] = 22;
+    charToInt["|"] = 22;
 
 }
 

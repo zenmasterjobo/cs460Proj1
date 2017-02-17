@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
 using namespace std;
 
 enum token_type {NONE = -1,
@@ -62,6 +63,7 @@ class LexicalAnalyzer
 	int errors;
 	token_type file_error;
 	int stateTable;
+        map<string, int> charToInt;
 };
 	
 #endif
