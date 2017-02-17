@@ -189,12 +189,15 @@ token_type LexicalAnalyzer::GetToken ()
 
       if(startState - 500 >= 0 && startState - 500 <= 30){
 	    token_type lex = token_type(startState - 500);
+          cout << "test: " << lexeme + temp << endl;
         if(lex != IDENT_T && lex != NUMLIT_T){
             if(temp != " ") { lexeme += temp; }
             pos++;
         } else if(lex == IDENT_T) {
-            cout << "lexeme test: " << lexeme << endl;
-            if(predMap.count(lexeme)) { lex = predMap[lexeme]; }
+            if(predMap.count(lexeme + temp)) {
+                lexeme += temp;
+                lex = predMap[lexeme];
+            }
         }
           cout << "Lexeme: " << lexeme << endl;
           cout << "Lexeme #: "<< lex << endl;
@@ -203,7 +206,7 @@ token_type LexicalAnalyzer::GetToken ()
       } else {
 	    pos++;
           if(temp != " ") { lexeme += temp; }
-	    cout << "LEXEME: " << lexeme << endl;
+//	    cout << "LEXEME: " << lexeme << endl;
       }
     }
   }
