@@ -45,7 +45,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   file_error = FILE_ERR;
 
 
-stateTable[13][21] =
+stateTable =
    {{0,528,526,527,520,8,11,519,9,10,3,521,4,-50,6,1,6,6,6,6,-50},
     {529,529,529,529,529,529,529,529,529,6,529,529,529,529,2,6,5,6,6,6,6},
     {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,6},
@@ -172,7 +172,8 @@ token_type LexicalAnalyzer::GetToken ()
       if(startState - 500 >= 0 && startState - 500 <= 30){
 	lexeme += temp;
 	pos++;
-	return startState - 500;
+	token_type lex = startState - 500;
+	return lex;
       }
       else{
 	pos++;
