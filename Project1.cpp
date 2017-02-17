@@ -13,7 +13,7 @@ int main (int argc, char * argv[])
   }
   
   LexicalAnalyzer *lex = new LexicalAnalyzer(argv[1]);
-  //token_type test = lex->GetToken();
+  token_type test = lex->GetToken();
   //cout << lex->GetTokenName(test) << endl;
   
   

@@ -37,7 +37,8 @@ enum token_type {NONE = -1,
 		 RPAREN_T,   // 27
 		 QUOTE_T,    // 28
 		 IDENT_T,    // 29
-		 NUMLIT_T};  // 30
+		 NUMLIT_T,   // 30
+		 FILE_ERR = -2};
 
 class LexicalAnalyzer 
 {
@@ -58,6 +59,7 @@ class LexicalAnalyzer
 	int pos;
 	string lexeme;
 	int errors;
+	token_type file_error;
 };
 	
 #endif

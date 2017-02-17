@@ -39,14 +39,8 @@ static string token_names[] = {	"EOF_T",      // 0
 LexicalAnalyzer::LexicalAnalyzer (char * filename)
 {
   // This function will initialize the lexical analyzer class
-  ifstream myfile (filename);
-  if (myfile.is_open()){    
-    while (! myfile.eof()) {
-      getline (myfile,line);
-      GetToken();
-      }
-      myfile.close();
-    }
+  input.open(filename);
+  file_error = FILE_ERR;
 }
 
 LexicalAnalyzer::~LexicalAnalyzer ()
@@ -56,13 +50,36 @@ LexicalAnalyzer::~LexicalAnalyzer ()
 
 token_type LexicalAnalyzer::GetToken ()
 {
-
   // This function will find the next lexeme int the input file and return
   // the token_type value associated with that lexeme
+  
+  
+  string temp;
+  if(!input.is_open()) {return file_error;}
+  
+  while (! input.eof()) {
+    int startState = 0;  
+    bool isLex = false;
+    getline(input,line);
+    
+    while(!isLex){
+      temp = line[pos];
+      int tableColumn = charToInt[temp];
+      startState = stateTable[startState][tableColumn];
 
-  for(int i=0; i<line.size(); i++){
-    cout << line[i];
+      if(startState - 500 >= 0 && startState - 500 <= 30){
+	lexeme += temp;
+	pos++;
+	return startState - 500;
+      }
+      else{
+	pos++;
+	lexeme += temp;
+      }
+    }
   }
+  input.close();
+  
   
   token_type test = EOF_T;
 
