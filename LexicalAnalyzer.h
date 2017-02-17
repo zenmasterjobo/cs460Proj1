@@ -40,6 +40,7 @@ enum token_type {NONE = -1,
 		 NUMLIT_T,   // 30
 		 FILE_ERR = -2};
 
+
 class LexicalAnalyzer 
 {
     public:
@@ -60,6 +61,7 @@ class LexicalAnalyzer
 	string lexeme;
 	int errors;
 	token_type file_error;
+	int stateTable;
 };
 	
 #endif
