@@ -36,20 +36,20 @@ static string token_names[] = {	"EOF_T",      // 0
 				"IDENT_T",    // 29
 				"NUMLIT_T"};  // 30
 
-int stateTable[][21] =
-   {{0,528,526,527,520,8,11,519,9,10,3,521,4,-50,6,1,6,6,6,6,-50},
-    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,2,6,5,6,6,6,6},
-    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,6},
-    {522,522,522,522,522,522,522,522,522,522,522,524,522,522,522,522,522,522,522,522,522},
-    {523,523,523,523,523,523,523,523,523,523,523,525,523,523,523,523,523,523,523,523,523},
-    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,529},
-    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,6,6,6,6,6},
-    {530,530,530,530,530,530,530,530,12,7,530,530,530,530,530,530,530,530,530,530,530},
-    {517,517,517,517,517,517,517,517,14,7,517,517,517,517,517,517,517,517,517,517,517},
-    {-50,-50,-50,-50,-50,-50,-50,-50,-50,12,-50,-50,-50,-50,-50,-50,-50,-50,-50,-50,-50},
-    {530,530,530,530,530,530,530,530,12,10,530,530,530,530,530,530,530,530,530,530,530},
-    {518,518,518,518,518,518,518,518,14,7,518,518,518,518,518,518,518,518,518,518,518},
-    {530,530,530,530,530,530,530,530,530,12,530,530,530,530,530,530,530,530,530,530,530}}; 
+int stateTable[][22] =
+   {{0,528,526,527,520,8,11,519,9,10,3,521,4,-4,6,1,6,6,6,6,-4, -4},
+    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,2,6,5,6,6,6,6, -4},
+    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,6, -4},
+    {522,522,522,522,522,522,522,522,522,522,522,524,522,522,522,522,522,522,522,522,522, -4},
+    {523,523,523,523,523,523,523,523,523,523,523,525,523,523,523,523,523,523,523,523,523, -4},
+    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,529, -4},
+    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,6,6,6,6,6, -4},
+    {530,530,530,530,530,530,530,530,12,7,530,530,530,530,530,530,530,530,530,530,530, -4},
+    {517,517,517,517,517,517,517,517,14,7,517,517,517,517,517,517,517,517,517,517,517, -4},
+    {-3,-3,-3,-3,-3,-3,-3,-3,-3,12,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3, -4},
+    {530,530,530,530,530,530,530,530,12,10,530,530,530,530,530,530,530,530,530,530,530, -4},
+    {518,518,518,518,518,518,518,518,14,7,518,518,518,518,518,518,518,518,518,518,518, -4},
+    {530,530,530,530,530,530,530,530,530,12,530,530,530,530,530,530,530,530,530,530,530, -4}};
 
 LexicalAnalyzer::LexicalAnalyzer (char * filename)
 {
@@ -142,6 +142,19 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
     charToInt["&"] = 21;
     charToInt["~"] = 21;
     charToInt["|"] = 21;
+    charToInt["\\"] = 21;
+    charToInt["{"] = 21;
+    charToInt["}"] = 21;
+    charToInt[";"] = 21;
+    charToInt[":"] = 21;
+    charToInt["!"] = 21;
+    charToInt["@"] = 21;
+    charToInt["["] = 21;
+    charToInt["]"] = 21;
+
+
+
+
 
     predMap["number?"] = NUMBERP_T;
     predMap["symbol?"] = SYMBOLP_T;
@@ -164,8 +177,11 @@ token_type LexicalAnalyzer::GetToken ()
   // the token_type value associated with that lexeme
   
   
-  string temp;
-  if(!input.is_open()) {return file_error;}
+  string currChar;
+  if(!input.is_open()) {
+      ReportError("file failed to open!");
+      return file_error;
+  }
   
   while (! input.eof()) {
     int startState = 0;  
@@ -178,34 +194,40 @@ token_type LexicalAnalyzer::GetToken ()
   if(line.size() == 0) { continue; }
 
     while(true){
-      temp = line[pos];
-      int tableColumn = charToInt[temp];
+      currChar = line[pos];
+      int tableColumn = charToInt[currChar];
       startState = stateTable[startState][tableColumn];
 
-//      cout << "TEMP:" << temp << endl;
+//      cout << "CURRCHAR:" << currChar << endl;
 //      cout << "TABLE COL: "<< tableColumn << endl;
 //      cout << "START STATE: " << startState << endl;
 
 
       if(startState - 500 >= 0 && startState - 500 <= 30){
 	    token_type lex = token_type(startState - 500);
-          cout << "test: " << lexeme + temp << endl;
         if(lex != IDENT_T && lex != NUMLIT_T){
-            if(temp != " ") { lexeme += temp; }
+            if(currChar != " ") { lexeme += currChar; }
             pos++;
         } else if(lex == IDENT_T) {
-            if(predMap.count(lexeme + temp)) {
-                lexeme += temp;
+            if(predMap.count(lexeme + currChar)) {
+                lexeme += currChar;
                 lex = predMap[lexeme];
+                pos++;
             }
         }
           cout << "Lexeme: " << lexeme << endl;
           cout << "Lexeme #: "<< lex << endl;
 	    return lex;
 
+      } else if(startState == -3) {
+        ReportError("'" + currChar + "'" + ": expecting a number directly after '.'!");
+        return NUM_ERR;
+      } else if(startState == -4) {
+          ReportError("'" + currChar + "'" + " is not a valid symbol!");
+          return CURRCHAR_ERR;
       } else {
 	    pos++;
-          if(temp != " ") { lexeme += temp; }
+          if(currChar != " ") { lexeme += currChar; }
 //	    cout << "LEXEME: " << lexeme << endl;
       }
     }
@@ -227,10 +249,11 @@ string LexicalAnalyzer::GetLexeme () const
 {
 	// This function will return the lexeme found by the most recent call to 
 	// the get_token function
-	return "";
+	return lexeme;
 }
 
 void LexicalAnalyzer::ReportError (const string & msg)
 {
 	// This function will be called to write an error message to a file
+    cout << "error: " + msg << endl;
 }

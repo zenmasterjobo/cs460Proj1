@@ -39,7 +39,9 @@ enum token_type {NONE = -1,
 		 QUOTE_T,    // 28
 		 IDENT_T,    // 29
 		 NUMLIT_T,   // 30
-		 FILE_ERR = -2};
+		 FILE_ERR = -2,
+		 NUM_ERR = -3,
+         CURRCHAR_ERR = -4};
 
 
 class LexicalAnalyzer 
