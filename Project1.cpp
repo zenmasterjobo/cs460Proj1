@@ -14,8 +14,9 @@ int main (int argc, char * argv[])
   token_type test;
   LexicalAnalyzer *lex = new LexicalAnalyzer(argv[1]);
   do{
-  test = lex->GetToken();
-  cout << lex->GetTokenName(test) << endl;
+    test = lex->GetToken();
+    cout << lex->GetTokenName(test) << endl;
+    cout << endl;
   } while(test != 0);
   
 //SetLimits ();

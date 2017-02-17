@@ -57,6 +57,8 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   // This function will initialize the lexical analyzer class
   input.open(filename);
   file_error = FILE_ERR;
+  pos = 0;
+  line = "";
 
 
     charToInt[" "] = 0;
@@ -160,28 +162,36 @@ token_type LexicalAnalyzer::GetToken ()
   while (! input.eof()) {
     int startState = 0;  
     bool isLex = false;
-    lexeme = " ";
-    getline(input,line);
+    lexeme = "";
+    if(pos == line.size()) {
+        getline(input, line);
+        pos = 0;
+    }
     
     while(!isLex){
       temp = line[pos];
-      //cout << "TEMP:" << temp << endl; 
       int tableColumn = charToInt[temp];
-      //cout << "TABLE COL: "<< tableColumn << endl; 
       startState = stateTable[startState][tableColumn];
-      
+
+//      cout << "TEMP:" << temp << endl;
+//      cout << "TABLE COL: "<< tableColumn << endl;
+//      cout << "START STATE: " << startState << endl;
+
+
       if(startState - 500 >= 0 && startState - 500 <= 30){
-	lexeme += temp;
-	pos++;
-	token_type lex = token_type(startState - 500);
-	//cout << "START STATE: " << startState << endl;
-	//cout << "OUR LEX: "<< lex << endl;
-	return lex;
-      }
-      else{
-	pos++;
-	lexeme += temp;
-	cout << "LEXEME: " << lexeme << endl;
+	    token_type lex = token_type(startState - 500);
+        if(lex != IDENT_T && lex != NUMLIT_T){
+            lexeme += temp;
+            pos++;
+        }
+          cout << "Lexeme: " << lexeme << endl;
+          cout << "Lexeme #: "<< lex << endl;
+	    return lex;
+
+      } else {
+	    pos++;
+	    lexeme += temp;
+//	    cout << "LEXEME: " << lexeme << endl;
       }
     }
   }
