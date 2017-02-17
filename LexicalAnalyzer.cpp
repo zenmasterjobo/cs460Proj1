@@ -51,7 +51,6 @@ int stateTable[][21] =
     {518,518,518,518,518,518,518,518,14,7,518,518,518,518,518,518,518,518,518,518,518},
     {530,530,530,530,530,530,530,530,530,12,530,530,530,530,530,530,530,530,530,530,530}}; 
 
-
 LexicalAnalyzer::LexicalAnalyzer (char * filename)
 {
   // This function will initialize the lexical analyzer class
@@ -95,6 +94,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
     charToInt["i"] = 18;
     charToInt["j"] = 18;
     charToInt["k"] = 18;
+    charToInt["l"] = 18;
     charToInt["m"] = 18;
     charToInt["n"] = 18;
     charToInt["o"] = 18;
@@ -143,6 +143,14 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
     charToInt["~"] = 21;
     charToInt["|"] = 21;
 
+    predMap["number?"] = NUMBERP_T;
+    predMap["symbol?"] = SYMBOLP_T;
+    predMap["list?"] = LISTP_T;
+    predMap["zero?"] = ZEROP_T;
+    predMap["null?"] = NULLP_T;
+    predMap["char?"] = CHARP_T;
+    predMap["string?"] = STRINGP_T;
+
 }
 
 LexicalAnalyzer::~LexicalAnalyzer ()
@@ -161,14 +169,15 @@ token_type LexicalAnalyzer::GetToken ()
   
   while (! input.eof()) {
     int startState = 0;  
-    bool isLex = false;
     lexeme = "";
     if(pos == line.size()) {
         getline(input, line);
         pos = 0;
     }
-    
-    while(!isLex){
+
+  if(line.size() == 0) { continue; }
+
+    while(true){
       temp = line[pos];
       int tableColumn = charToInt[temp];
       startState = stateTable[startState][tableColumn];
@@ -181,8 +190,11 @@ token_type LexicalAnalyzer::GetToken ()
       if(startState - 500 >= 0 && startState - 500 <= 30){
 	    token_type lex = token_type(startState - 500);
         if(lex != IDENT_T && lex != NUMLIT_T){
-            lexeme += temp;
+            if(temp != " ") { lexeme += temp; }
             pos++;
+        } else if(lex == IDENT_T) {
+            cout << "lexeme test: " << lexeme << endl;
+            if(predMap.count(lexeme)) { lex = predMap[lexeme]; }
         }
           cout << "Lexeme: " << lexeme << endl;
           cout << "Lexeme #: "<< lex << endl;
@@ -190,8 +202,8 @@ token_type LexicalAnalyzer::GetToken ()
 
       } else {
 	    pos++;
-	    lexeme += temp;
-//	    cout << "LEXEME: " << lexeme << endl;
+          if(temp != " ") { lexeme += temp; }
+	    cout << "LEXEME: " << lexeme << endl;
       }
     }
   }
