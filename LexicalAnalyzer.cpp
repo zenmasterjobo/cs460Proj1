@@ -1,5 +1,5 @@
-#include <iomanip>
 #include <cstdlib>
+#include <iomanip>
 #include "LexicalAnalyzer.h"
 
 using namespace std;
@@ -34,7 +34,8 @@ static string token_names[] = {	"EOF_T",      // 0
 				"RPAREN_T",   // 27
 				"QUOTE_T",    // 28
 				"IDENT_T",    // 29
-				"NUMLIT_T"};  // 30
+				"NUMLIT_T",
+                "ERROR_T"};  // 30
 
 int stateTable[][22] =
    {{0,528,526,527,520,8,11,519,9,10,3,521,4,-4,6,1,6,6,6,6,-4, -4},
@@ -57,6 +58,8 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   input.open(filename);
   file_error = FILE_ERR;
   pos = 0;
+    errors = 0;
+    linenum = 0;
   line = "";
 
 
@@ -176,7 +179,6 @@ token_type LexicalAnalyzer::GetToken ()
   // This function will find the next lexeme int the input file and return
   // the token_type value associated with that lexeme
   
-  
   string currChar;
   if(!input.is_open()) {
       ReportError("file failed to open!");
@@ -188,6 +190,7 @@ token_type LexicalAnalyzer::GetToken ()
     lexeme = "";
     if(pos == line.size()) {
         getline(input, line);
+        linenum++;
         pos = 0;
     }
 
@@ -220,11 +223,17 @@ token_type LexicalAnalyzer::GetToken ()
 	    return lex;
 
       } else if(startState == -3) {
-        ReportError("'" + currChar + "'" + ": expecting a number directly after '.'!");
-        return NUM_ERR;
+        ReportError( to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
+        pos++;
+          cout << "lex at error: " << lexeme << endl;
+          errors++;
+          return token_type(ERROR_T);
       } else if(startState == -4) {
-          ReportError("'" + currChar + "'" + " is not a valid symbol!");
-          return CURRCHAR_ERR;
+          ReportError(to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
+          pos++;
+          cout << "lex at error: " << lexeme << endl;
+          errors++;
+          return token_type(ERROR_T);
       } else {
 	    pos++;
           if(currChar != " ") { lexeme += currChar; }
@@ -255,5 +264,5 @@ string LexicalAnalyzer::GetLexeme () const
 void LexicalAnalyzer::ReportError (const string & msg)
 {
 	// This function will be called to write an error message to a file
-    cout << "error: " + msg << endl;
+    cout << "error on line " + msg << endl;
 }
