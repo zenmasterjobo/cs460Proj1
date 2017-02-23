@@ -12,18 +12,6 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 	token_type t;
 	fstream output, debug;
 
-	output.open("lex.lst", ios::out | ios::trunc);
-	if(!output.is_open()) {
-		cout << "error: .lst file did not open!" << endl;
-		exit(1);
-	}
-
-	debug.open("lex.dbg", ios::out | ios::trunc);
-	if(!debug.is_open()) {
-		cout << "error: .dbg file did not open!" << endl;
-		exit(2);
-	}
-
 	while ((t = lex->GetToken()) != EOF_T)
 	{
 		cout << lex->GetTokenName(t) << endl;
