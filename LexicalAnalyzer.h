@@ -68,7 +68,7 @@ class LexicalAnalyzer
 	token_type file_error;
         map<string, int> charToInt;
 	map<string, token_type > predMap;
-
+    int prevState;
 };
 	
 #endif

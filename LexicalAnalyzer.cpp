@@ -6,7 +6,7 @@ using namespace std;
 
 static string token_names[] = {	"EOF_T",      // 0
 				"NUM_TOKENS", // 1
-				"CONS_T = 2", // 2
+				"CONS_T", // 2
 				"IF_T",       // 3
 				"WHILE_T",    // 4
 				"AND_T",      // 5
@@ -74,6 +74,11 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
     exit(1);
     }
  
+  debug.open("lex.dbg", ios::trunc);
+  if(!debug.is_open()) {
+    cout << "error: .dbg file did not open!" << endl;
+    exit(1);
+  }
   
   charToInt[" "] = 0;
   charToInt["'"] = 1;
@@ -186,6 +191,7 @@ LexicalAnalyzer::~LexicalAnalyzer ()
 	// This function will complete the execution of the lexical analyzer class
   listing.close();
   test1.close();
+  debug.close();
 }
 
 token_type LexicalAnalyzer::GetToken ()
@@ -199,7 +205,6 @@ token_type LexicalAnalyzer::GetToken ()
   }
   
   //while (! input.eof()) {
-  string n = "";
   while (! input.eof()) {
     if(listing.fail()){
       cout << "Listing failed to write" << endl;
@@ -210,12 +215,15 @@ token_type LexicalAnalyzer::GetToken ()
     int startState = 0;  
     lexeme = "";
     if(pos == line.size()) {
+        debug << "getline called" << endl;
         getline(input, line);
         linenum++;
 	//if(listing.fail())
 	//cout << "Line: " << line << "Line Number: " << linenum << endl;
-	listing << linenum << ": " << line << endl;
-	test1 << endl << linenum <<". " << line << endl;
+	if(line != "") {
+        listing << linenum << ": " << line << endl;
+	    test1 << endl << linenum <<". " << line << endl;
+    }
 	//listing << "PUTH THISAFIASDFAS" << endl;
         pos = 0;
     }
@@ -223,9 +231,19 @@ token_type LexicalAnalyzer::GetToken ()
   if(line.size() == 0) { continue; }
 
     while(true){
+        if(pos == line.size()) {
+            if(lexeme != "")
+            {
+                test1 << GetTokenName(token_type(stateTable[startState][0] - 500)) << " " << lexeme << endl; 
+            }
+            break;
+        }
       currChar = line[pos];
       int tableColumn = charToInt[currChar];
+      prevState = startState;
       startState = stateTable[startState][tableColumn];
+
+      debug << "start state: " << prevState << " new state: " << startState << " table Column: " << tableColumn  << " cur token: " << currChar << endl;
       //      cout << startState << "THIS SHOULD BE -4";
 //      cout << "CURRCHAR:" << currChar << endl;
 //      cout << "TABLE COL: "<< tableColumn << endl;
@@ -259,18 +277,22 @@ token_type LexicalAnalyzer::GetToken ()
 	  test1 << currChar << endl;
           return token_type(ERROR_T);
 	  
-      } else if(startState == -4) {
+      } else if(startState == -4 && lexeme == "") {
           ReportError(to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
           pos++;
-          cout << "lex at error: " << lexeme << endl;
           errors++;
-	  test1 << GetTokenName(token_type(ERROR_T)) << ' ';
-	  test1 << currChar << endl;	  
+          test1 << GetTokenName(token_type(ERROR_T)) << ' ';
+	      test1 << currChar << endl;
           return token_type(ERROR_T);
+      } else if(startState == -4 && lexeme != "") {
+          // deal with what is currently in lexeme
+          test1 << GetTokenName(token_type(stateTable[prevState][0] - 500)) << " " << lexeme << endl; 
+          startState = 0;
+          lexeme = "";
       } else {
 	    pos++;
           if(currChar != " ") { lexeme += currChar; }
-//	    cout << "LEXEME: " << lexeme << endl;
+	    //cout << "LEXEME: " << lexeme << endl;
       }
     }
   }
