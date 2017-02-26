@@ -10,15 +10,13 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 {
 	lex = new LexicalAnalyzer (filename);
 	token_type t;
-	fstream output, debug;
 
 	while ((t = lex->GetToken()) != EOF_T)
 	{
-		cout << lex->GetTokenName(t) << endl;
-		cout << endl;
-		// get a token
-		// write its name to the debug file
-		// write the corresponding lexeme to the debug file
+	  // This will run the Lexical Analyzer GetToken()
+	  // until there are no more lines left in the input file.
+	  // GetToken handles all ostream file output, along with
+	  // the finding of lexemes 
 	}
 }
 

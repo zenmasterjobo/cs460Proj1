@@ -4,6 +4,12 @@
 #include <fstream>
 using namespace std;
 
+/****************************************************
+ * this is the array of names we can use to look up *
+ * the sting name of our enumerated values.         *
+ * toekn_names[NUMBERP_T] would take us to index 10 *
+ * and return the appropriate names                 *
+ ***************************************************/
 static string token_names[] = {	"EOF_T",      // 0
 				"NUM_TOKENS", // 1
 				"CONS_T", // 2
@@ -35,8 +41,12 @@ static string token_names[] = {	"EOF_T",      // 0
 				"QUOTE_T",    // 28
 				"IDENT_T",    // 29
 				"NUMLIT_T",
-                "ERROR_T"};  // 30
+				"ERROR_T"};  // 30
 
+ /*******************************************************
+ *This State table will help our code quickly transition *
+ *between error states and accepting states.             *
+ *******************************************************/
 int stateTable[][22] =
    {{0,528,526,527,520,8,11,519,9,10,3,521,4,-4,6,1,6,6,6,6,-4, -4},
     {529,529,529,529,529,529,529,529,529,6,529,529,529,529,2,6,5,6,6,6,6, -4},
@@ -54,7 +64,12 @@ int stateTable[][22] =
 
 LexicalAnalyzer::LexicalAnalyzer (char * filename)
 {
-  // This function will initialize the lexical analyzer class
+  /**************************************************************
+ *These variables will be used for important infomation         *
+ *regaurding our .lst, .dbg, and .P1 files. The .open functions *
+ *beneath this are to open the files and get the ostream ready  *
+ *to write to those files.                                      *
+ ***************************************************************/
   input.open(filename);
   file_error = FILE_ERR;
   pos = 0;
@@ -62,24 +77,28 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   linenum = 0;
   line = "";
 
-  listing.open("lex.lst", ios::trunc);
+  listing.open("TeamH.lst", ios::trunc);
   if(!listing.is_open()) {
     cout << "error: .lst file did not open!" << endl;
     exit(1);
     }
 
-  test1.open("test1.p1", ios::trunc);
+  test1.open("test1.P1", ios::trunc);
   if(!listing.is_open()) {
     cout << "error: .p1 file did not open!" << endl;
     exit(1);
     }
  
-  debug.open("lex.dbg", ios::trunc);
+  debug.open("TeamH.dbg", ios::trunc);
   if(!debug.is_open()) {
     cout << "error: .dbg file did not open!" << endl;
     exit(1);
   }
-  
+
+  /**********************************************************************
+   *  ChartoInt is a map that we made to change any characters          *
+   * to an integer value, that we can then use in our table 'stateTable'*
+   *********************************************************************/
   charToInt[" "] = 0;
   charToInt["'"] = 1;
   charToInt["("] = 2;
@@ -106,7 +125,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   charToInt["a"] = 14;
   charToInt["b"] = 18;
   charToInt["c"] = 15;
-  charToInt["d"] = 15;
+  charToInt["d"] = 16;
   charToInt["e"] = 18;
   charToInt["f"] = 18;
   charToInt["g"] = 18;
@@ -175,7 +194,11 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
 
 
 
-
+  /*********************************************************************
+   * This Map is used that if the current lexeme has a question mark   *
+   * We can quckily check this map to see if it is a predicate or not. *
+   * If it is not. then the question mark is an error                  *
+  *********************************************************************/
   predMap["number?"] = NUMBERP_T;
   predMap["symbol?"] = SYMBOLP_T;
   predMap["list?"] = LISTP_T;
@@ -188,7 +211,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
 
 LexicalAnalyzer::~LexicalAnalyzer ()
 {
-	// This function will complete the execution of the lexical analyzer class
+  // We close the ostream file that we open.
   listing.close();
   test1.close();
   debug.close();
@@ -212,19 +235,15 @@ token_type LexicalAnalyzer::GetToken ()
     if(test1.fail()){
       cout << "Test1 failed to write" << endl;
     }
-    int startState = 0;  
+    int startState = 0;
     lexeme = "";
     if(pos == line.size()) {
         debug << "getline called" << endl;
         getline(input, line);
         linenum++;
-	//if(listing.fail())
-	//cout << "Line: " << line << "Line Number: " << linenum << endl;
-	if(line != "") {
+	if(line != ""){
         listing << linenum << ": " << line << endl;
-	    test1 << endl << linenum <<". " << line << endl;
     }
-	//listing << "PUTH THISAFIASDFAS" << endl;
         pos = 0;
     }
 
@@ -244,61 +263,51 @@ token_type LexicalAnalyzer::GetToken ()
       startState = stateTable[startState][tableColumn];
 
       debug << "start state: " << prevState << " new state: " << startState << " table Column: " << tableColumn  << " cur token: " << currChar << endl;
-      //      cout << startState << "THIS SHOULD BE -4";
-//      cout << "CURRCHAR:" << currChar << endl;
-//      cout << "TABLE COL: "<< tableColumn << endl;
-//      cout << "START STATE: " << startState << endl;
-
-
       if(startState - 500 >= 0 && startState - 500 <= 30){
-	    token_type lex = token_type(startState - 500);
+	token_type lex = token_type(startState - 500);
         if(lex != IDENT_T && lex != NUMLIT_T){
-            if(currChar != " ") { lexeme += currChar; }
-            pos++;
+	  if(currChar != " ") { lexeme += currChar; }
+	  pos++;
         } else if(lex == IDENT_T) {
-            if(predMap.count(lexeme + currChar)) {
-                lexeme += currChar;
-                lex = predMap[lexeme];
-                pos++;
-            }
+	  if(predMap.count(lexeme + currChar)) {
+	    lexeme += currChar;
+	    lex = predMap[lexeme];
+	    pos++;
+	  }
         }
 	test1 << GetTokenName(lex) << ' ';
 	test1 << lexeme << endl;
-
-          //cout << "Lexeme #: "<< lex << endl;
-	    return lex;
+	return lex;
 
       } else if(startState == -3) {
         ReportError( to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
         pos++;
-          cout << "lex at error: " << lexeme << endl;
           errors++;
 	  test1 << GetTokenName(token_type(ERROR_T)) << ' ';
 	  test1 << currChar << endl;
           return token_type(ERROR_T);
 	  
       } else if(startState == -4 && lexeme == "") {
-          ReportError(to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
-          pos++;
-          errors++;
-          test1 << GetTokenName(token_type(ERROR_T)) << ' ';
-	      test1 << currChar << endl;
-          return token_type(ERROR_T);
+	ReportError(to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
+	pos++;
+	errors++;
+	test1 << GetTokenName(token_type(ERROR_T)) << ' ';
+	test1 << currChar << endl;
+	return token_type(ERROR_T);
       } else if(startState == -4 && lexeme != "") {
-          // deal with what is currently in lexeme
-          test1 << GetTokenName(token_type(stateTable[prevState][0] - 500)) << " " << lexeme << endl; 
-          startState = 0;
-          lexeme = "";
+	// deal with what is currently in lexeme
+	test1 << GetTokenName(token_type(stateTable[prevState][0] - 500)) << " " << lexeme << endl; 
+	startState = 0;
+	lexeme = "";
       } else {
-	    pos++;
-          if(currChar != " ") { lexeme += currChar; }
-	    //cout << "LEXEME: " << lexeme << endl;
+	pos++;
+	if(currChar != " ") { lexeme += currChar; }
       }
     }
   }
   input.close();
   listing << errors << ' ' << "error(s) found" << endl;
-return token_type(EOF_T);
+  return token_type(EOF_T);
 }
 
 string LexicalAnalyzer::GetTokenName (token_type t) const
