@@ -12,7 +12,7 @@ using namespace std;
  ***************************************************/
 static string token_names[] = {	"EOF_T",      // 0
 				"NUM_TOKENS", // 1
-				"CONS_T", // 2
+				"CONS_T",     // 2
 				"IF_T",       // 3
 				"WHILE_T",    // 4
 				"AND_T",      // 5
@@ -40,8 +40,8 @@ static string token_names[] = {	"EOF_T",      // 0
 				"RPAREN_T",   // 27
 				"QUOTE_T",    // 28
 				"IDENT_T",    // 29
-				"NUMLIT_T",
-				"ERROR_T"};  // 30
+				"NUMLIT_T",   // 30
+				"ERROR_T"};   // 31
 
  /*******************************************************
  *This State table will help our code quickly transition *
@@ -217,17 +217,25 @@ LexicalAnalyzer::~LexicalAnalyzer ()
   debug.close();
 }
 
+/*********************************************************************
+This funcion will find legal tokens to pass to the Syntactical       *
+analyzer. It does this by parsing each character of a line, and      *
+changing that character to a number. That number is then passed      *
+to the stateTable in which we update which 'state' we are in. The    *
+state will return a valid identifier if the number can be subtracted *
+by 500 and be >= 0 and <= 30                                         *
+*********************************************************************/
 token_type LexicalAnalyzer::GetToken ()
 {
-  // This function will find the next lexeme int the input file and return
-  // the token_type value associated with that lexeme
   string currChar;
   if(!input.is_open()) {
       ReportError("file failed to open!");
       return file_error;
   }
-  
-  //while (! input.eof()) {
+
+   /*******************************
+   * Make Sure we have good input *
+   ********************************/
   while (! input.eof()) {
     if(listing.fail()){
       cout << "Listing failed to write" << endl;
@@ -235,6 +243,13 @@ token_type LexicalAnalyzer::GetToken ()
     if(test1.fail()){
       cout << "Test1 failed to write" << endl;
     }
+
+    /****************************************************************
+     * Set our start state to 0, get the current line,              *
+     * Increment the line number for .lst file, set our position    *
+     * index to 0, for the .lst file. If our line has nothing in it *
+     * we want to skip the rest of code and start this loop over    *
+     ****************************************************************/
     int startState = 0;
     lexeme = "";
     if(pos == line.size()) {
@@ -242,67 +257,100 @@ token_type LexicalAnalyzer::GetToken ()
         getline(input, line);
         linenum++;
 	if(line != ""){
-        listing << linenum << ": " << line << endl;
-    }
+	  listing << linenum << ": " << line << endl;
+	}
         pos = 0;
     }
 
   if(line.size() == 0) { continue; }
 
+  /**********************************************************************
+   * pos == line.size would mean that we reached the end of the line    *
+   * we want to check and see if the lexeme is empty or not.            *
+   * If it is not empty we will write the token name  of the lexeme to  *
+   * our .P1 file. then break out of the while loop, and go back to the *
+   * previous while loop, and get the next line                         *
+   *********************************************************************/
     while(true){
         if(pos == line.size()) {
             if(lexeme != "")
             {
-                test1 << GetTokenName(token_type(stateTable[startState][0] - 500)) << " " << lexeme << endl; 
+	      test1 << GetTokenName(token_type(stateTable[startState][0] - 500)) << " " << lexeme << endl; 
             }
             break;
         }
-      currChar = line[pos];
-      int tableColumn = charToInt[currChar];
-      prevState = startState;
-      startState = stateTable[startState][tableColumn];
-
-      debug << "start state: " << prevState << " new state: " << startState << " table Column: " << tableColumn  << " cur token: " << currChar << endl;
-      if(startState - 500 >= 0 && startState - 500 <= 30){
-	token_type lex = token_type(startState - 500);
-        if(lex != IDENT_T && lex != NUMLIT_T){
-	  if(currChar != " ") { lexeme += currChar; }
-	  pos++;
-        } else if(lex == IDENT_T) {
-	  if(predMap.count(lexeme + currChar)) {
-	    lexeme += currChar;
-	    lex = predMap[lexeme];
+	/***************************************************************************
+	* We are going to find the current Character, and then convert             *
+        * that char into a number we can use inside of our stateTable.             *
+        * We keep not of our previous state to handle not bombing out of           *
+        * our previous lexeme in the chance that we get an error. See the          *
+        * last else if statement. If our startState can be subtracted by 500 and   *
+        * return a value between 0 and 30, we know that we have a _T key.          * 
+        * we check if the lex is an IDENT key cause if it is, we need to check     *
+        * our pred map, and if we add the current char to our lexeme (given that   *
+        * it is a ?) we can find if our lexeme is P_T. We then put the values into *
+        * our .P1 file.                                                            *
+	****************************************************************************/
+	currChar = line[pos];
+	int tableColumn = charToInt[currChar];
+	prevState = startState;
+	startState = stateTable[startState][tableColumn];
+	
+	debug << "start state: " << prevState << " new state: " << startState << " table Column: " << tableColumn  << " cur token: " << currChar << endl;
+	if(startState - 500 >= 0 && startState - 500 <= 30){
+	  token_type lex = token_type(startState - 500);
+	  if(lex != IDENT_T && lex != NUMLIT_T){
+	    if(currChar != " ") { lexeme += currChar; }
 	    pos++;
+	  } else if(lex == IDENT_T) {
+	    if(predMap.count(lexeme + currChar)) {
+	      lexeme += currChar;
+	      lex = predMap[lexeme];
+	      pos++;
+	    }
 	  }
-        }
-	test1 << GetTokenName(lex) << ' ';
-	test1 << lexeme << endl;
-	return lex;
+	  test1 << GetTokenName(lex) << ' ';
+	  test1 << lexeme << endl;
+	  return lex;
 
-      } else if(startState == -3) {
-        ReportError( to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
-        pos++;
+	  /*************************************************************************
+	  * if our start state goes to -3 that means we were builing a numlit_t,   *
+	  * and we got a value that we can't accept like '.a' or '-1.d'            *
+          **************************************************************************/
+	} else if(startState == -3) {                                             
+	  ReportError( to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
+	  pos++;
           errors++;
 	  test1 << GetTokenName(token_type(ERROR_T)) << ' ';
 	  test1 << currChar << endl;
           return token_type(ERROR_T);
-	  
-      } else if(startState == -4 && lexeme == "") {
-	ReportError(to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
-	pos++;
-	errors++;
-	test1 << GetTokenName(token_type(ERROR_T)) << ' ';
-	test1 << currChar << endl;
-	return token_type(ERROR_T);
-      } else if(startState == -4 && lexeme != "") {
-	// deal with what is currently in lexeme
-	test1 << GetTokenName(token_type(stateTable[prevState][0] - 500)) << " " << lexeme << endl; 
-	startState = 0;
-	lexeme = "";
-      } else {
-	pos++;
-	if(currChar != " ") { lexeme += currChar; }
-      }
+
+	  /*********************************************************************************************
+	   * A start state of -4 and an empty lexeme means we found an invalid character like '^'.     * 
+	   * this meant that we foudn it on it's own and that we were not building up lexeme before it * 
+	   * that might get bombed out.                                                                *
+	  *********************************************************************************************/
+	} else if(startState == -4 && lexeme == "") {
+	  ReportError(to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
+	  pos++;
+	  errors++;
+	  test1 << GetTokenName(token_type(ERROR_T)) << ' ';
+	  test1 << currChar << endl;
+	  return token_type(ERROR_T);
+	  /*********************************************************************************************************
+	   * This else if  handles if we have 'adsfsadsf?asdfadsf' or anything like that. we have two IDENT_T and  *
+	   * and and ERROR_T in the middle. This stores and gets us the first IDENT_T and puts it in our           *
+           * .P1 file, and then it will be able to handle the -4 on the next loop because the lexeme will be empty *
+           * and we wont lose our IDENT_T before the error                                                         *
+	   ********************************************************************************************************/
+	} else if(startState == -4 && lexeme != "") {
+	  test1 << GetTokenName(token_type(stateTable[prevState][0] - 500)) << " " << lexeme << endl; 
+	  startState = 0;
+	  lexeme = "";
+	} else {
+	  pos++;
+	  if(currChar != " ") { lexeme += currChar; }
+	}
     }
   }
   input.close();
