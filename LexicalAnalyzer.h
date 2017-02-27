@@ -39,7 +39,8 @@ enum token_type {NONE = -1,
 		 QUOTE_T,    // 28
 		 IDENT_T,    // 29
 		 NUMLIT_T,   // 30
-		 ERROR_T,	// 31
+		 ERROR_T,    // 31
+		 LET_T,       // 32  
 		 FILE_ERR = -2,
 		 NUM_ERR = -3,
          CURRCHAR_ERR = -4};

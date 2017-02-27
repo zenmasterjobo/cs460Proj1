@@ -41,7 +41,8 @@ static string token_names[] = {	"EOF_T",      // 0
 				"QUOTE_T",    // 28
 				"IDENT_T",    // 29
 				"NUMLIT_T",   // 30
-				"ERROR_T"};   // 31
+				"ERROR_T",    // 31
+				"LET_T"};     // 32
 
  /*******************************************************
  *This State table will help our code quickly transition *
@@ -198,15 +199,19 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
    * This Map is used that if the current lexeme has a question mark   *
    * We can quckily check this map to see if it is a predicate or not. *
    * If it is not. then the question mark is an error                  *
+   * We also added checks for let, while, cons, and 'and'.             *
   *********************************************************************/
   predMap["number?"] = NUMBERP_T;
   predMap["symbol?"] = SYMBOLP_T;
-  predMap["list?"] = LISTP_T;
-  predMap["zero?"] = ZEROP_T;
-  predMap["null?"] = NULLP_T;
-  predMap["char?"] = CHARP_T;
+  predMap["list?"]   = LISTP_T;
+  predMap["zero?"]   = ZEROP_T;
+  predMap["null?"]   = NULLP_T;
+  predMap["char?"]   = CHARP_T;
   predMap["string?"] = STRINGP_T;
-
+  predMap["cons"]    = CONS_T;
+  predMap["let"]     = LET_T;
+  predMap["while"]   = WHILE_T;
+  predMap["and"]     = AND_T;
 }
 
 LexicalAnalyzer::~LexicalAnalyzer ()
@@ -305,6 +310,10 @@ token_type LexicalAnalyzer::GetToken ()
 	  } else if(lex == IDENT_T) {
 	    if(predMap.count(lexeme + currChar)) {
 	      lexeme += currChar;
+	      lex = predMap[lexeme];
+	      pos++;
+	    }
+	    if(predMap.count(lexeme)){
 	      lex = predMap[lexeme];
 	      pos++;
 	    }
