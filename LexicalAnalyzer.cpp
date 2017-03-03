@@ -2,6 +2,8 @@
 #include <iomanip>
 #include "LexicalAnalyzer.h"
 #include <fstream>
+#include <string>
+
 using namespace std;
 
 /****************************************************
@@ -49,7 +51,7 @@ static string token_names[] = {	"EOF_T",      // 0
  *between error states and accepting states.             *
  *******************************************************/
 int stateTable[][22] =
-   {{0,528,526,527,520,8,11,519,9,10,3,521,4,-4,6,1,6,6,6,6,-4, -4},
+   {{0,528,526,527,520,8,11,519,9,10,4,521,3,-4,6,1,6,6,6,6,-4, -4},
     {529,529,529,529,529,529,529,529,529,6,529,529,529,529,2,6,5,6,6,6,6, -4},
     {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,6, -4},
     {522,522,522,522,522,522,522,522,522,522,522,524,522,522,522,522,522,522,522,522,522, -4},
@@ -57,11 +59,12 @@ int stateTable[][22] =
     {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,529, -4},
     {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,6,6,6,6,6, -4},
     {530,530,530,530,530,530,530,530,12,7,530,530,530,530,530,530,530,530,530,530,530, -4},
-    {517,517,517,517,517,517,517,517,14,7,517,517,517,517,517,517,517,517,517,517,517, -4},
+    {517,517,517,517,517,517,517,517,13,7,517,517,517,517,517,517,517,517,517,517,517, -4},
     {-3,-3,-3,-3,-3,-3,-3,-3,-3,12,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3, -4},
     {530,530,530,530,530,530,530,530,12,10,530,530,530,530,530,530,530,530,530,530,530, -4},
     {518,518,518,518,518,518,518,518,14,7,518,518,518,518,518,518,518,518,518,518,518, -4},
-    {530,530,530,530,530,530,530,530,530,12,530,530,530,530,530,530,530,530,530,530,530, -4}};
+    {530,530,530,530,530,530,530,530,530,12,530,530,530,530,530,530,530,530,530,530,530, -4},
+    {-3,-3,-3,-3,-3,-3,-3,-3,-3,12,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3, -4}};
 
 LexicalAnalyzer::LexicalAnalyzer (char * filename)
 {
@@ -78,19 +81,23 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   linenum = 0;
   line = "";
 
-  listing.open("TeamH.lst", ios::trunc);
+  for(int i = 0; filename[i] != '.'; i++) {
+    outputFileName += filename[i];
+  }
+  
+  listing.open(outputFileName + ".lst", ios::trunc);
   if(!listing.is_open()) {
     cout << "error: .lst file did not open!" << endl;
     exit(1);
     }
 
-  test1.open("test1.P1", ios::trunc);
+  test1.open(outputFileName + ".P1", ios::trunc);
   if(!listing.is_open()) {
     cout << "error: .p1 file did not open!" << endl;
     exit(1);
     }
  
-  debug.open("TeamH.dbg", ios::trunc);
+  debug.open(outputFileName + ".dbg", ios::trunc);
   if(!debug.is_open()) {
     cout << "error: .dbg file did not open!" << endl;
     exit(1);
@@ -262,7 +269,8 @@ token_type LexicalAnalyzer::GetToken ()
         getline(input, line);
         linenum++;
 	if(line != ""){
-	  listing << linenum << ": " << line << endl;
+	    line += " ";
+        listing << linenum << ": " << line << endl;
 	}
         pos = 0;
     }
@@ -280,7 +288,9 @@ token_type LexicalAnalyzer::GetToken ()
         if(pos == line.size()) {
             if(lexeme != "")
             {
-	      test1 << GetTokenName(token_type(stateTable[startState][0] - 500)) << " " << lexeme << endl; 
+	            test1 << GetTokenName(token_type(stateTable[startState][0] - 500)) << " " << lexeme << endl; 
+	            debug << GetTokenName(token_type(stateTable[startState][0] - 500)) << ' ' << lexeme << endl;
+                debug << endl;
             }
             break;
         }
@@ -304,7 +314,7 @@ token_type LexicalAnalyzer::GetToken ()
 	debug << "start state: " << prevState << " new state: " << startState << " table Column: " << tableColumn  << " cur token: " << currChar << endl;
 	if(startState - 500 >= 0 && startState - 500 <= 30){
 	  token_type lex = token_type(startState - 500);
-	  if(lex != IDENT_T && lex != NUMLIT_T){
+	  if(lex != IDENT_T && lex != NUMLIT_T && lex != PLUS_T && lex != MINUS_T && lex != LT_T && lex != GT_T){
 	    if(currChar != " ") { lexeme += currChar; }
 	    pos++;
 	  } else if(lex == IDENT_T) {
@@ -313,13 +323,14 @@ token_type LexicalAnalyzer::GetToken ()
 	      lex = predMap[lexeme];
 	      pos++;
 	    }
-	    if(predMap.count(lexeme)){
+        else if(predMap.count(lexeme)){
 	      lex = predMap[lexeme];
 	      pos++;
 	    }
 	  }
-	  test1 << GetTokenName(lex) << ' ';
-	  test1 << lexeme << endl;
+	  test1 << GetTokenName(lex) << ' ' << lexeme << endl;
+	  debug << GetTokenName(lex) << ' ' << lexeme << endl;
+      debug << endl;
 	  return lex;
 
 	  /*************************************************************************
@@ -330,8 +341,9 @@ token_type LexicalAnalyzer::GetToken ()
 	  ReportError( to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
 	  pos++;
           errors++;
-	  test1 << GetTokenName(token_type(ERROR_T)) << ' ';
-	  test1 << currChar << endl;
+	  test1 << GetTokenName(token_type(ERROR_T)) << ' ' << currChar << endl;
+	  debug << GetTokenName(token_type(ERROR_T)) << ' ' << currChar << endl;
+      debug << endl;
           return token_type(ERROR_T);
 
 	  /*********************************************************************************************
@@ -343,8 +355,9 @@ token_type LexicalAnalyzer::GetToken ()
 	  ReportError(to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
 	  pos++;
 	  errors++;
-	  test1 << GetTokenName(token_type(ERROR_T)) << ' ';
-	  test1 << currChar << endl;
+	  test1 << GetTokenName(token_type(ERROR_T)) << ' ' << currChar << endl;
+	  debug << GetTokenName(token_type(ERROR_T)) << ' ' << currChar << endl;
+      debug << endl;
 	  return token_type(ERROR_T);
 	  /*********************************************************************************************************
 	   * This else if  handles if we have 'adsfsadsf?asdfadsf' or anything like that. we have two IDENT_T and  *
@@ -364,6 +377,7 @@ token_type LexicalAnalyzer::GetToken ()
   }
   input.close();
   listing << errors << ' ' << "error(s) found" << endl;
+    cout << errors << ' ' << "error(s) found" << endl;
   return token_type(EOF_T);
 }
 

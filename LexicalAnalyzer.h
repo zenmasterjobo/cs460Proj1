@@ -70,6 +70,7 @@ class LexicalAnalyzer
         map<string, int> charToInt;
 	map<string, token_type > predMap;
     int prevState;
+    string outputFileName;
 };
 	
 #endif
