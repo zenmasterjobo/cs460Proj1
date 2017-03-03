@@ -50,21 +50,21 @@ static string token_names[] = {	"EOF_T",      // 0
  *This State table will help our code quickly transition *
  *between error states and accepting states.             *
  *******************************************************/
-int stateTable[][22] =
-   {{0,528,526,527,520,8,11,519,9,10,4,521,3,-4,6,1,6,6,6,6,-4, -4},
-    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,2,6,5,6,6,6,6, -4},
-    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,6, -4},
-    {522,522,522,522,522,522,522,522,522,522,522,524,522,522,522,522,522,522,522,522,522, -4},
-    {523,523,523,523,523,523,523,523,523,523,523,525,523,523,523,523,523,523,523,523,523, -4},
-    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,529, -4},
-    {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,6,6,6,6,6, -4},
-    {530,530,530,530,530,530,530,530,12,7,530,530,530,530,530,530,530,530,530,530,530, -4},
-    {517,517,517,517,517,517,517,517,13,7,517,517,517,517,517,517,517,517,517,517,517, -4},
-    {-3,-3,-3,-3,-3,-3,-3,-3,-3,12,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3, -4},
-    {530,530,530,530,530,530,530,530,12,10,530,530,530,530,530,530,530,530,530,530,530, -4},
-    {518,518,518,518,518,518,518,518,14,7,518,518,518,518,518,518,518,518,518,518,518, -4},
-    {530,530,530,530,530,530,530,530,530,12,530,530,530,530,530,530,530,530,530,530,530, -4},
-    {-3,-3,-3,-3,-3,-3,-3,-3,-3,12,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3, -4}};
+int stateTable[][23] =
+  {{0,528,526,527,520,8,11,519,9,10,4,521,3,-4,6,1,6,6,6,6,-4,-4, 0},
+   {529,529,529,529,529,529,529,529,529,6,529,529,529,529,2,6,5,6,6,6,6, -4, 529},
+   {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,6, -4, 529},
+   {522,522,522,522,522,522,522,522,522,522,522,524,522,522,522,522,522,522,522,522,522, -4, 522},
+   {523,523,523,523,523,523,523,523,523,523,523,525,523,523,523,523,523,523,523,523,523, -4, 523},
+   {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,5,509,6,6,529, -4, 529},
+   {529,529,529,529,529,529,529,529,529,6,529,529,529,529,6,6,6,6,6,6,6, -4, 529},
+   {530,530,530,530,530,530,530,530,12,7,530,530,530,530,530,530,530,530,530,530,530, -4, 530},
+   {517,517,517,517,517,517,517,517,13,7,517,517,517,517,517,517,517,517,517,517,517, -4, 517},
+   {-3,-3,-3,-3,-3,-3,-3,-3,-3,12,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3, -4, -3},
+   {530,530,530,530,530,530,530,530,12,10,530,530,530,530,530,530,530,530,530,530,530, -4, 530},
+   {518,518,518,518,518,518,518,518,14,7,518,518,518,518,518,518,518,518,518,518,518, -4, 518},
+   {530,530,530,530,530,530,530,530,530,12,530,530,530,530,530,530,530,530,530,530,530, -4, 530},
+   {-3,-3,-3,-3,-3,-3,-3,-3,-3,12,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3, -4, -3}};
 
 LexicalAnalyzer::LexicalAnalyzer (char * filename)
 {
@@ -91,7 +91,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
     exit(1);
     }
 
-  test1.open(outputFileName + ".P1", ios::trunc);
+  test1.open(outputFileName + ".p1", ios::trunc);
   if(!listing.is_open()) {
     cout << "error: .p1 file did not open!" << endl;
     exit(1);
@@ -108,6 +108,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
    * to an integer value, that we can then use in our table 'stateTable'*
    *********************************************************************/
   charToInt[" "] = 0;
+  charToInt["\t"] = 22;
   charToInt["'"] = 1;
   charToInt["("] = 2;
   charToInt[")"] = 3;
@@ -167,6 +168,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   charToInt["I"] = 19;
   charToInt["J"] = 19;
   charToInt["K"] = 19;
+  charToInt["L"] = 19;
   charToInt["M"] = 19;
   charToInt["N"] = 19;
   charToInt["O"] = 19;
@@ -190,6 +192,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   charToInt["~"] = 21;
   charToInt["|"] = 21;
   charToInt["\\"] = 21;
+  charToInt["\""] = 21;
   charToInt["{"] = 21;
   charToInt["}"] = 21;
   charToInt[";"] = 21;
@@ -198,6 +201,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   charToInt["@"] = 21;
   charToInt["["] = 21;
   charToInt["]"] = 21;
+  charToInt[","] = 21;
   
 
 
@@ -221,7 +225,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   predMap["and"]     = AND_T;
   predMap["if"]      = IF_T;
   predMap["not"]     = NOT_T;
-  predMap["Define"]  = DEFINE_T;
+  predMap["define"]  = DEFINE_T;
 }
 
 LexicalAnalyzer::~LexicalAnalyzer ()
@@ -314,7 +318,7 @@ token_type LexicalAnalyzer::GetToken ()
 	prevState = startState;
 	startState = stateTable[startState][tableColumn];
 	
-	debug << "start state: " << prevState << " new state: " << startState << " table Column: " << tableColumn  << " cur token: " << currChar << endl;
+	debug << "start state: " << prevState << " new state: " << startState << " table Column: " << tableColumn  << " cur token: " << currChar << " current Lex: " << lexeme << endl;
 	if(startState - 500 >= 0 && startState - 500 <= 30){
 	  token_type lex = token_type(startState - 500);
 	  if(lex != IDENT_T && lex != NUMLIT_T && lex != PLUS_T && lex != MINUS_T && lex != LT_T && lex != GT_T){
@@ -328,7 +332,7 @@ token_type LexicalAnalyzer::GetToken ()
 	    }
         else if(predMap.count(lexeme)){
 	      lex = predMap[lexeme];
-	      pos++;
+	      // pos++;
 	    }
 	  }
 	  test1 << GetTokenName(lex) << ' ' << lexeme << endl;
@@ -360,7 +364,7 @@ token_type LexicalAnalyzer::GetToken ()
 	  errors++;
 	  test1 << GetTokenName(token_type(ERROR_T)) << ' ' << currChar << endl;
 	  debug << GetTokenName(token_type(ERROR_T)) << ' ' << currChar << endl;
-      debug << endl;
+	  debug << endl;
 	  return token_type(ERROR_T);
 	  /*********************************************************************************************************
 	   * This else if  handles if we have 'adsfsadsf?asdfadsf' or anything like that. we have two IDENT_T and  *
@@ -369,12 +373,14 @@ token_type LexicalAnalyzer::GetToken ()
            * and we wont lose our IDENT_T before the error                                                         *
 	   ********************************************************************************************************/
 	} else if(startState == -4 && lexeme != "") {
-	  test1 << GetTokenName(token_type(stateTable[prevState][0] - 500)) << " " << lexeme << endl; 
+	  test1 << GetTokenName(token_type(stateTable[prevState][0] - 500)) << " " << lexeme << endl;
+	  debug << GetTokenName(token_type(stateTable[prevState][0] - 500)) << " " << lexeme << endl;
+	  debug << endl;
 	  startState = 0;
 	  lexeme = "";
 	} else {
 	  pos++;
-	  if(currChar != " ") { lexeme += currChar; }
+	  if(currChar != " " && currChar != "\t") { lexeme += currChar; }
 	}
     }
   }
