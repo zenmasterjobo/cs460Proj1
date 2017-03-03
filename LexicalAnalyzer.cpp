@@ -206,7 +206,7 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
    * This Map is used that if the current lexeme has a question mark   *
    * We can quckily check this map to see if it is a predicate or not. *
    * If it is not. then the question mark is an error                  *
-   * We also added checks for let, while, cons, and 'and'.             *
+   * We also added checks for other keywords that we were not checking.*
   *********************************************************************/
   predMap["number?"] = NUMBERP_T;
   predMap["symbol?"] = SYMBOLP_T;
@@ -216,9 +216,12 @@ LexicalAnalyzer::LexicalAnalyzer (char * filename)
   predMap["char?"]   = CHARP_T;
   predMap["string?"] = STRINGP_T;
   predMap["cons"]    = CONS_T;
-  predMap["let"]     = LET_T;
+  predMap["or"]      = OR_T;
   predMap["while"]   = WHILE_T;
   predMap["and"]     = AND_T;
+  predMap["if"]      = IF_T;
+  predMap["not"]     = NOT_T;
+  predMap["Define"]  = DEFINE_T;
 }
 
 LexicalAnalyzer::~LexicalAnalyzer ()
