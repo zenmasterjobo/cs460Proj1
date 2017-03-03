@@ -330,11 +330,15 @@ token_type LexicalAnalyzer::GetToken ()
 	      lex = predMap[lexeme];
 	      pos++;
 	    }
-        else if(predMap.count(lexeme)){
+	    else if(predMap.count(lexeme)){
 	      lex = predMap[lexeme];
-	      // pos++;
 	    }
-	  }
+	    else if(currChar == "?"){
+		lexeme += currChar;
+		pos++;
+	      }
+	    }
+	  
 	  test1 << GetTokenName(lex) << ' ' << lexeme << endl;
 	  debug << GetTokenName(lex) << ' ' << lexeme << endl;
       debug << endl;
@@ -346,10 +350,9 @@ token_type LexicalAnalyzer::GetToken ()
           **************************************************************************/
 	} else if(startState == -3) {                                             
 	  ReportError( to_string(linenum) + ": unexpected '" + currChar + "' at position " + to_string(pos + 1));
-	  pos++;
           errors++;
-	  test1 << GetTokenName(token_type(ERROR_T)) << ' ' << currChar << endl;
-	  debug << GetTokenName(token_type(ERROR_T)) << ' ' << currChar << endl;
+	  test1 << GetTokenName(token_type(ERROR_T)) << ' ' << lexeme << endl;
+	  debug << GetTokenName(token_type(ERROR_T)) << ' ' << lexeme << endl;
       debug << endl;
           return token_type(ERROR_T);
 
